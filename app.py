@@ -1,12 +1,21 @@
 from flask import Flask, render_template
-from os import getenv
+import os
 import uuid, json, requests
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, SelectField
+from azure.keyvault.secrets import SecretClient
+from azure.identity import DefaultAzureCredential
 
 
 app = Flask(__name__)
 
+keyVaultName = os.environ["KEY_VAULT_NAME"]
+KVUri = f"https://{keyVaultName}.vault.azure.net"
+credential = DefaultAzureCredential()
+client = SecretClient(vault_url=KVUri, credential=credential)
+secret_key = client.get_secret("SECRET-KEY").value
+service_endpoint = client.get_secret("TRANSLATE-ENDPOINT")
+sub_key = client.get_secret("TRANSLATE-SUB-KEY")
 
 app.config['SECRET_KEY']=getenv('SECRET_KEY')
 
